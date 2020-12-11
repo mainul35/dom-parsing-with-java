@@ -7,11 +7,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ContentProviderHelper {
+public class SearchResultCollectorHelper {
 
     private String extractUrl(String element) {
         // Example taken from
@@ -50,4 +51,19 @@ public class ContentProviderHelper {
         }
         return content;
     }
+
+    public List<Result> getResultSet(CloseableHttpResponse response1, String topicTitle) throws IOException {
+        HttpEntity entity = response1.getEntity();
+        SearchResultCollector collector = new SearchResultCollector();
+        StringBuilder content = new StringBuilder("");
+        if (entity != null) {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response1.getEntity().getContent()));
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null) {
+                content.append(line);
+            }
+        }
+        return collector.collect(topicTitle, content.toString());
+    }
+
 }
