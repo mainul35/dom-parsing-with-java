@@ -14,6 +14,12 @@ import java.util.regex.Pattern;
 
 public class SearchResultCollectorHelper {
 
+    private final PropertyConfig propertyConfig;
+
+    public SearchResultCollectorHelper() throws IOException {
+        this.propertyConfig = new PropertyConfig();
+    }
+
     private String extractUrl(String element) {
         // Example taken from
         // https://stackoverflow.com/questions/8307839/creating-java-regex-to-get-href-link
@@ -40,7 +46,9 @@ public class SearchResultCollectorHelper {
 
             String line = "";
             while ((line = br.readLine()) != null) {
-                if (line.contains("class=\"browse-by-list-item\"")) {
+                if (line.contains("class=\""
+                        + propertyConfig.getPropertyValue(PropertyKeySource.TOPIC_SELECTOR_CLASS)
+                        + "\"")) {
                     line = br.readLine();
                     String url = extractUrl(line);
                     String key = extractText(line);
