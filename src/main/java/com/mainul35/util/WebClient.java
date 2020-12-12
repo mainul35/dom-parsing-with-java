@@ -1,4 +1,4 @@
-package com.mainul35;
+package com.mainul35.util;
 
 import com.revinate.guava.util.concurrent.RateLimiter;
 import org.apache.http.client.config.RequestConfig;

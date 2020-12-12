@@ -1,0 +1,17 @@
+@startuml
+actor User
+User -> Main: Clicks on Run button to Generate the results
+Main -> WebClient: calls the get(url) method for response
+WebClient -> WebClient: Fetches the response
+WebClient -> Main: Sends the response
+Main -> SearchResultCollectorHelper: Calls getTopicAndUrl(response)
+SearchResultCollectorHelper -> Main: Returns a map containing urls as value and topic names as key
+loop until the last item of map
+    Main -> SearchResultCollectorHelper: Calls getResultSet(response, topicTitle) in parallel for getting Results
+    SearchResultCollectorHelper -> SearchResultCollector: Calls the collect(topicTitle, content) method for Result list
+    SearchResultCollector -> SearchResultCollectorHelper: Generats the search Results and returns a List<Result>
+    SearchResultCollectorHelper -> Main: Returns the list
+end
+Main -> Main: Writes the results to file
+Main -> User: Returns the file and exit from the program
+@enduml

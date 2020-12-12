@@ -1,5 +1,8 @@
 package com.mainul35;
 
+import com.mainul35.helper.SearchResultCollectorHelper;
+import com.mainul35.model.Result;
+import com.mainul35.util.WebClient;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
@@ -15,16 +18,18 @@ import java.util.concurrent.Executors;
 
 public class Main {
 
+    private static SearchResultCollectorHelper helper;
+    private static WebClient webClient;
+
     public static void main(String[] args) throws IOException {
-        WebClient webClient = new WebClient();
-        SearchResultCollectorHelper helper = new SearchResultCollectorHelper();
+        webClient = new WebClient();
+        helper = new SearchResultCollectorHelper();
         try {
             CloseableHttpResponse response = webClient.get("http://www.cochranelibrary.com/home/topic-and-review-group-list.html?page=topic");
             try {
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     Map<String, String> urlPerTopic = helper.getTopicAndUrl(response);
 
-                    List<Result> resultSet;
                     StringBuilder output = new StringBuilder("");
 
                     ExecutorService executor = Executors.newFixedThreadPool(5);

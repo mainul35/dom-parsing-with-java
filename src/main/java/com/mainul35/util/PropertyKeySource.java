@@ -1,4 +1,4 @@
-package com.mainul35;
+package com.mainul35.util;
 
 public class PropertyKeySource {
     public static final String TOPIC_SELECTOR_CLASS = "topic.item.selector.class";

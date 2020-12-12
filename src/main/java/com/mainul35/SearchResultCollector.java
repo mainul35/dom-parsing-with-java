@@ -1,5 +1,8 @@
 package com.mainul35;
 
+import com.mainul35.model.Result;
+import com.mainul35.util.PropertyConfig;
+import com.mainul35.util.PropertyKeySource;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;

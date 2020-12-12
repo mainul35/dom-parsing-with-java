@@ -1,5 +1,9 @@
-package com.mainul35;
+package com.mainul35.helper;
 
+import com.mainul35.SearchResultCollector;
+import com.mainul35.model.Result;
+import com.mainul35.util.PropertyConfig;
+import com.mainul35.util.PropertyKeySource;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
@@ -15,6 +19,7 @@ import java.util.regex.Pattern;
 public class SearchResultCollectorHelper {
 
     private final PropertyConfig propertyConfig;
+    private SearchResultCollector collector;
 
     public SearchResultCollectorHelper() throws IOException {
         this.propertyConfig = new PropertyConfig();
@@ -62,7 +67,7 @@ public class SearchResultCollectorHelper {
 
     public List<Result> getResultSet(CloseableHttpResponse response1, String topicTitle) throws IOException {
         HttpEntity entity = response1.getEntity();
-        SearchResultCollector collector = new SearchResultCollector();
+        collector = new SearchResultCollector();
         StringBuilder content = new StringBuilder("");
         if (entity != null) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response1.getEntity().getContent()));

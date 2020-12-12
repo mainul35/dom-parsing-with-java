@@ -1,4 +1,4 @@
-package com.mainul35;
+package com.mainul35.model;
 
 import java.io.Serializable;
 
