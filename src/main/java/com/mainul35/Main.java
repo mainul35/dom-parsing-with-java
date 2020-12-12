@@ -6,9 +6,12 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
 
@@ -21,34 +24,18 @@ public class Main {
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     Map<String, String> urlPerTopic = helper.getTopicAndUrl(response);
 
-                    List<Result> resultSet = new ArrayList<>();
+                    List<Result> resultSet;
                     StringBuilder output = new StringBuilder("");
 
+                    ExecutorService executor = Executors.newFixedThreadPool(5);
+                    LinkedList<Callable<StringBuilder>> tasksList = new LinkedList<>();
                     for (Map.Entry<String, String> entry : urlPerTopic.entrySet()) {
-                        try {
-                            response = webClient.get(entry.getValue());
-                            if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                                resultSet = helper.getResultSet(response, entry.getKey());
-                                resultSet.forEach(result -> {
-                                    output
-                                            .append(result.getUrl())
-                                            .append(" | ")
-                                            .append(result.getTopic())
-                                            .append(" | ")
-                                            .append(result.getTitle())
-                                            .append(" | ")
-                                            .append(result.getAuthor())
-                                            .append(" | ")
-                                            .append(result.getDate())
-                                            .append("\n\n");
-                                });
-                            }
-                        } catch (SocketTimeoutException e) {
-                            System.err.println(e.getMessage() + "For URL of title: " + entry.getKey());
-                        }
-
-//                        break;
+                        tasksList.add(prepareSearchResultsAsync(webClient, entry, helper, output));
                     }
+
+                    executor.invokeAll(tasksList);
+
+                    executor.shutdownNow();
 
                     writeToFile(output);
                     System.out.println("Completed.");
@@ -66,6 +53,40 @@ public class Main {
             webClient.close();
         }
 
+    }
+
+    private static Callable<StringBuilder> prepareSearchResultsAsync(
+            WebClient webClient,
+            Map.Entry<String, String> entry,
+            SearchResultCollectorHelper helper,
+            StringBuilder output) {
+        Callable<StringBuilder> callableTask = () -> {
+            try {
+                CloseableHttpResponse response = webClient.get(entry.getValue());
+                if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    List<Result> resultSet = helper.getResultSet(response, entry.getKey());
+                    resultSet.forEach(result -> {
+                        output
+                                .append(result.getUrl())
+                                .append(" | ")
+                                .append(result.getTopic())
+                                .append(" | ")
+                                .append(result.getTitle())
+                                .append(" | ")
+                                .append(result.getAuthor())
+                                .append(" | ")
+                                .append(result.getDate())
+                                .append("\n\n");
+                    });
+                }
+            } catch (SocketTimeoutException e) {
+                System.err.println(e.getMessage() + "For URL of title: " + entry.getKey());
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
+            }
+            return output;
+        };
+        return callableTask;
     }
 
     private static void writeToFile(StringBuilder output) throws IOException {

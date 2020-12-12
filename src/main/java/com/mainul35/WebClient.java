@@ -18,21 +18,26 @@ public class WebClient {
     HttpGet getRequest;
 
     public WebClient() {
+        httpClient = getCloseableHttpClient();
+
+        // Creating rate limiter for 2 requests per second.
+        // Cloudflare accepts maximum 4 requests per second.
+        this.limiter = RateLimiter.create(2);
+    }
+
+    private CloseableHttpClient getCloseableHttpClient() {
+        final CloseableHttpClient httpClient;
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(7 * 1000)
                 .setConnectionRequestTimeout(7 * 1000)
                 .setSocketTimeout(7 * 1000).build();
         PoolingHttpClientConnectionManager poolingConnManager
                 = new PoolingHttpClientConnectionManager();
-        poolingConnManager.setMaxTotal(40);
-        poolingConnManager.setDefaultMaxPerRoute(20);
-        this.httpClient = HttpClientBuilder.create()
+        poolingConnManager.setMaxTotal(50);
+        poolingConnManager.setDefaultMaxPerRoute(40);
+        return HttpClientBuilder.create()
                 .setConnectionManager(poolingConnManager)
                 .setDefaultRequestConfig(config).build();
-
-        // Creating rate limiter for 2 requests per second.
-        // Cloudflare accepts maximum 4 requests per second.
-        this.limiter = RateLimiter.create(2);
     }
 
     public CloseableHttpResponse get(String url) throws IOException, InterruptedException {
@@ -66,8 +71,6 @@ public class WebClient {
             response = httpClient.execute(request);
         } catch (ConnectionPoolTimeoutException e) {
             System.err.println("Failed to establish the connection: " + e.getMessage());
-//            e.printStackTrace();
-//            request.releaseConnection();
         }
         return response;
     }
