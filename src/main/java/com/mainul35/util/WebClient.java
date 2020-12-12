@@ -78,8 +78,4 @@ public class WebClient {
     public void close() throws IOException {
         this.httpClient.close();
     }
-
-    public void releaseConnection() {
-        this.getRequest.releaseConnection();
-    }
 }

@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 public class SearchResultCollectorHelper {
 
     private final PropertyConfig propertyConfig;
-    private SearchResultCollector collector;
 
     public SearchResultCollectorHelper() throws IOException {
         this.propertyConfig = new PropertyConfig();
@@ -67,7 +66,7 @@ public class SearchResultCollectorHelper {
 
     public List<Result> getResultSet(CloseableHttpResponse response1, String topicTitle) throws IOException {
         HttpEntity entity = response1.getEntity();
-        collector = new SearchResultCollector();
+        SearchResultCollector collector = new SearchResultCollector();
         StringBuilder content = new StringBuilder("");
         if (entity != null) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response1.getEntity().getContent()));
