@@ -98,7 +98,7 @@ public class ApplicationRunner {
 
     private void writeToFile(StringBuilder output) throws IOException {
         FileOutputStream outputStream = new FileOutputStream(Main.class.getClassLoader()
-                .getResource("static/" + propertyConfig.getPropertyValue(PropertyKeySource.OUTPUT_FILE_NAME)).getFile());
+                .getResource(propertyConfig.getPropertyValue(PropertyKeySource.OUTPUT_FILE_NAME)).getFile());
         byte b[] = output.toString().getBytes();
         outputStream.write(b);
         outputStream.close();
