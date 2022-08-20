@@ -8,9 +8,11 @@ import com.mainul35.util.WebClient;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -97,10 +99,12 @@ public class ApplicationRunner {
     }
 
     private void writeToFile(StringBuilder output) throws IOException {
-        FileOutputStream outputStream = new FileOutputStream(Main.class.getClassLoader()
-                .getResource(propertyConfig.getPropertyValue(PropertyKeySource.OUTPUT_FILE_NAME)).getFile());
-        byte b[] = output.toString().getBytes();
-        outputStream.write(b);
-        outputStream.close();
+        URL url = getClass().getClassLoader().getResource(propertyConfig.getPropertyValue(PropertyKeySource.OUTPUT_FILE_NAME));
+        if (url != null && new File(url.getFile()).exists()) {
+            FileOutputStream outputStream = new FileOutputStream(url.getFile());
+            byte[] b = output.toString().getBytes();
+            outputStream.write(b);
+            outputStream.close();
+        }
     }
 }
